@@ -2,3 +2,16 @@
 .Rhistory
 .RData
 .Ruserdata
+visualization_1.py
+visualization_2.py
+fig2
+simulation_results.csv
+facebook_combined.txt
+facebook_tensor.pt
+R_analysis/fig1_cascade_probability.png
+R_analysis/fig2_expected_ross.png
+R_analysis/fig3_cascade_probability.png
+R_analysis/fig3_cascade_probability_v3.png
+R_analysis/fig4_odds_ratios.png
+R_analysis/fig5_rewiring.png
+R_analysis/figures.R

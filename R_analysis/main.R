@@ -3,123 +3,101 @@ graphics.off()
 cat("\014")
 
 df <- read.csv("simulation_results.csv")
-summary(df)
 
-# ==============================================================================
-# 1. ENVIRONMENT SETUP & DATA PREPROCESSING
-# ==============================================================================
-library(tidyverse)
-library(broom)
-library(ggpubr)
+library(dplyr)
 
-# Ensure categorical factors are correctly typed
-df_clean <- df %>%
+# --- 1. Types and labels ---
+df <- df %>%
   mutate(
-    strategy = factor(strategy, levels = c("Mega", "Micro", "Random")),
-    fatigue_alpha = factor(fatigue_alpha),
-    mean_threshold = factor(mean_threshold)
+    strategy      = factor(strategy, levels = c("Mega", "Micro", "Random")),
+    replication   = factor(replication),
+    alpha_f       = factor(fatigue_alpha),
+    theta_f       = factor(mean_threshold_nominal)
   )
 
-# Preview aggregate metric summary by strategy
-df_clean %>%
+# --- 2. Design completeness: expect 30 per cell, 1800 rows total ---
+nrow(df)
+anyNA(df)
+table(df$strategy, df$alpha_f, df$theta_f)[, , 1]   # one theta slice is enough
+all(table(df$strategy, df$alpha_f, df$theta_f) == 30)
+
+# --- 3. Budget matching: achieved / target spend by strategy ---
+df %>%
+  mutate(budget_ratio = achieved_budget / target_budget) %>%
   group_by(strategy) %>%
-  summarize(
-    mean_sat = mean(market_saturation),
-    sd_sat   = sd(market_saturation),
-    mean_ross = mean(ross),
-    sd_ross   = sd(ross),
-    avg_ticks = mean(convergence_tick),
-    .groups = "drop"
-  )
+  summarise(min = min(budget_ratio), mean = mean(budget_ratio), max = max(budget_ratio))
 
-# ==============================================================================
-# 2. INFERENTIAL STATISTICAL MODELING (ANOVA & POST-HOC)
-# ==============================================================================
+# --- 4. Seeds and budget scale ---
+df %>%
+  group_by(strategy) %>%
+  summarise(seeds_mean = mean(seed_count), seeds_min = min(seed_count), seeds_max = max(seed_count),
+            budget_mean = mean(target_budget), budget_min = min(target_budget), budget_max = max(target_budget))
 
-# Three-Way Factorial ANOVA on Return-On-Seed-Spend (ROSS)
-anova_ross <- aov(ross ~ strategy * fatigue_alpha * mean_threshold, data = df_clean)
-summary(anova_ross)
+# --- 5. Realized vs nominal threshold ---
+df %>%
+  group_by(mean_threshold_nominal) %>%
+  summarise(realized = mean(mean_threshold_realized))
 
-# Calculate Effect Sizes (Eta-Squared)
-cat("\n--- ANOVA Summary Table with Effect Sizes ---\n")
-anova_summary <- tidy(anova_ross)
-print(anova_summary)
-
-# Post-Hoc Pairwise Comparison (Tukey HSD for Strategy)
-cat("\n--- Tukey HSD Strategy Comparison ---\n")
-tukey_strategy <- TukeyHSD(anova_ross, "strategy")
-print(tukey_strategy)
-
-# Post-Hoc Strategy Performance per Fatigue Level
-cat("\n--- Strategy Comparison across Fatigue Levels ---\n")
-tukey_interaction <- TukeyHSD(anova_ross, "strategy:fatigue_alpha")
-# Filter interaction results to compare Micro vs Mega at each alpha level
-tukey_tidy <- tidy(tukey_interaction) %>%
-  filter(str_detect(contrast, "Micro:") & str_detect(contrast, "Mega:"))
-print(tukey_tidy)
+# --- 6. Outcome sanity ---
+summary(df[, c("convergence_tick", "exposed_nodes", "final_adopters", "market_saturation", "ross")])
 
 
-# ==============================================================================
-# 3. FIGURE 1: ROSS PERFORMANCE HEATMAP (RQ2 & RQ3)
-# ==============================================================================
-# Aggregates ROSS across strategy, fatigue, and adoption threshold
+# --- 1. Shape of the outcome ---
+hist(log10(df$market_saturation), breaks = 60,
+     main = "Market saturation (log10)", xlab = "log10(final adopters / N)")
 
-df_heatmap <- df_clean %>%
-  group_by(strategy, fatigue_alpha, mean_threshold) %>%
-  summarize(mean_ross = mean(ross), .groups = "drop")
+table(cut(df$market_saturation,
+          breaks = c(0, 0.001, 0.01, 0.05, 0.10, 0.25, 0.50, 1),
+          include.lowest = TRUE))
 
-fig1 <- ggplot(df_heatmap, aes(x = fatigue_alpha, y = mean_threshold, fill = mean_ross)) +
-  geom_tile(color = "white", linewidth = 0.5) +
-  geom_text(aes(label = round(mean_ross, 2)), color = "black", size = 3.5, fontface = "bold") +
-  facet_wrap(~ strategy) +
-  scale_fill_gradient2(
-    low = "#D95F02", mid = "#FFD700", high = "#1B9E77",
-    midpoint = median(df_heatmap$mean_ross),
-    name = "Mean ROSS"
-  ) +
-  theme_minimal(base_size = 12) +
-  labs(
-    title = "Return-On-Seed-Spend (ROSS) Across Behavioral Parameters",
-    subtitle = "Comparing Mega, Micro, and Random strategies across Ad Fatigue (Alpha) and Threshold (Theta)",
-    x = "Ad Fatigue Parameter (\u03b1)",
-    y = "Mean Adoption Threshold (\u03b8)"
-  ) +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    strip.text = element_text(face = "bold", size = 12),
-    legend.position = "bottom"
-  )
+# --- 2. Share of runs that never spread beyond the seeds ---
+mean(df$convergence_tick == 0)
+df %>% group_by(strategy) %>% summarise(no_spread = mean(convergence_tick == 0))
 
-print(fig1)
-ggsave("figure1_ross_heatmap.png", fig1, width = 11, height = 5, dpi = 300)
+# --- 3. Where do the big outcomes occur? (cutoff 10% is provisional) ---
+df <- df %>% mutate(cascade = market_saturation >= 0.10)
+
+df %>% group_by(strategy, theta_f) %>%
+  summarise(cascade_rate = mean(cascade), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = theta_f, values_from = cascade_rate)
+
+df %>% group_by(strategy, alpha_f) %>%
+  summarise(cascade_rate = mean(cascade), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = alpha_f, values_from = cascade_rate)
+
+# --- 4. Medians and means by strategy x theta (all alphas pooled) ---
+df %>% group_by(strategy, theta_f) %>%
+  summarise(median_sat = median(market_saturation),
+            mean_sat   = mean(market_saturation),
+            median_ross = median(ross), mean_ross = mean(ross),
+            .groups = "drop")
 
 
-# ==============================================================================
-# 4. FIGURE 2: TIPPING POINT GRADIENT (MICRO ADVANTAGE OVER MEGA)
-# ==============================================================================
-# Calculates the net ROSS advantage (Micro ROSS - Mega ROSS) across fatigue alpha
+df <- df %>% mutate(induced = final_adopters - seed_count)
 
-df_advantage <- df %>%
-  group_by(replication, fatigue_alpha, mean_threshold, strategy) %>%
-  summarize(mean_ross = mean(ross), .groups = "drop") %>%
-  pivot_wider(names_from = strategy, values_from = mean_ross) %>%
-  mutate(micro_advantage = Micro - Mega)
+# 1. Cascades out of 30 replications, in the 6 live cells
+df %>% filter(mean_threshold_nominal <= 0.2, fatigue_alpha <= 0.1) %>%
+  group_by(theta_f, alpha_f, strategy) %>%
+  summarise(cascades = sum(cascade), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = strategy, values_from = cascades)
 
-fig2 <- ggplot(df_advantage, aes(x = factor(fatigue_alpha), y = micro_advantage, fill = factor(mean_threshold))) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 0.8) +
-  geom_boxplot(alpha = 0.8, outlier.size = 1) +
-  scale_fill_brewer(palette = "Blues", name = "Threshold (\u03b8)") +
-  theme_bw(base_size = 12) +
-  labs(
-    title = "Micro-Influencer ROSS Advantage Over Mega-Influencers",
-    subtitle = "Values > 0 indicate Micro Portfolio outperformance; Red dashed line represents Parity",
-    x = "Ad Fatigue Parameter (\u03b1)",
-    y = "Net ROSS Advantage (\u0394 ROSS = Micro - Mega)"
-  ) +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    legend.position = "right"
-  )
+# 2. Do high-threshold cells diffuse at all? (induced adopters, not saturation)
+df %>% filter(mean_threshold_nominal >= 0.3) %>%
+  group_by(strategy, theta_f) %>%
+  summarise(median_induced = median(induced), p95_induced = quantile(induced, .95),
+            max_induced = max(induced), .groups = "drop")
 
-print(fig2)
-ggsave("figure2_tipping_point.png", fig2, width = 9, height = 5, dpi = 300)
+# 3. Budget confound at theta = 0.1: does a bigger mega budget mean more cascades?
+df %>% filter(mean_threshold_nominal == 0.1, fatigue_alpha <= 0.1) %>%
+  mutate(budget_bin = cut(target_budget,
+                          quantile(df$target_budget, c(0, 1/3, 2/3, 1)),
+                          include.lowest = TRUE)) %>%
+  group_by(budget_bin, strategy) %>%
+  summarise(n = n(), cascade_rate = mean(cascade), .groups = "drop") %>%
+  tidyr::pivot_wider(names_from = strategy, values_from = c(cascade_rate, n))
+
+# 4. Given a cascade: size, speed, efficiency by strategy
+df %>% filter(cascade) %>%
+  group_by(strategy) %>%
+  summarise(n = n(), median_sat = median(market_saturation),
+            median_tick = median(convergence_tick), median_ross = median(ross))
