@@ -1,0 +1,22 @@
+# Network data (downloaded from SNAP by the scripts; not redistributed)
+data/raw/*
+!data/raw/README.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# R / RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+analysis/output/exploratory/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

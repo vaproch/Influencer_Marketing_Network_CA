@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "If you use this code or these results, please cite the paper."
+title: "Analyzing influencer marketing strategies using network-based cellular automata: code and simulation results"
+type: software
+license: MIT
+repository-code: "https://github.com/vaproch/Influencer_Marketing_Network_CA"
+keywords:
+  - influencer marketing
+  - seeding strategies
+  - network cellular automata
+  - complex contagion
+  - ad fatigue
+  - simulation
+authors:
+  - family-names: "Procházka"
+    given-names: "Václav"
+    affiliation: "University of West Bohemia in Pilsen, Faculty of Economics"
+    orcid: "https://orcid.org/0009-0003-1276-5502"
+  - family-names: "Martinčík"
+    given-names: "David"
+    affiliation: "University of West Bohemia in Pilsen, Faculty of Economics"
+    orcid: "https://orcid.org/0009-0002-5042-6336"
+  - family-names: "Martinčíková Sojková"
+    given-names: "Olga"
+    affiliation: "University of West Bohemia in Pilsen, Faculty of Economics"
+    orcid: "https://orcid.org/0000-0001-5820-8881"
+  - family-names: "Král"
+    given-names: "Jakub"
+    affiliation: "University of West Bohemia in Pilsen, Faculty of Economics"
+    orcid: "https://orcid.org/0009-0001-0389-7170"
+preferred-citation:
+  type: conference-paper
+  title: "Analyzing influencer marketing strategies using network-based cellular automata"
+  year: 2026
+  authors:
+    - family-names: "Procházka"
+      given-names: "Václav"
+    - family-names: "Martinčík"
+      given-names: "David"
+    - family-names: "Martinčíková Sojková"
+      given-names: "Olga"
+    - family-names: "Král"
+      given-names: "Jakub"

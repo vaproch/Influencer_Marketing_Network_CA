@@ -1,0 +1,25 @@
+"statement","fatigue_alpha","strategy","runs","mean_ross"
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0","Mega",50,23.92
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0","Micro",50,24.34
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0","Niche",50,84.39
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0","Random",50,12.67
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.02","Mega",50,0.42
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.02","Micro",50,5.57
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.02","Niche",50,13.16
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.02","Random",50,1.81
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.05","Mega",50,0.17
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.05","Micro",50,0.32
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.05","Niche",50,0.5
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.05","Random",50,0.23
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.1","Mega",50,0.12
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.1","Micro",50,0.11
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.1","Niche",50,0.25
+"3.4: ROSS, K = 1, mu = 0.20, by fatigue","0.1","Random",50,0.17
+"3.4: ROSS, K = 1, mu = 0.20, pooled over fatigue","pooled","Mega",200,6.16
+"3.4: ROSS, K = 1, mu = 0.20, pooled over fatigue","pooled","Micro",200,7.59
+"3.4: ROSS, K = 1, mu = 0.20, pooled over fatigue","pooled","Niche",200,24.58
+"3.4: ROSS, K = 1, mu = 0.20, pooled over fatigue","pooled","Random",200,3.72
+"3.5: ROSS, price exponent 0.7, K = 1, mu = 0.20, no fatigue","0","Mega",30,193.38
+"3.5: ROSS, price exponent 0.7, K = 1, mu = 0.20, no fatigue","0","Micro",30,51.64
+"3.5: ROSS, price exponent 0.7, K = 1, mu = 0.20, no fatigue","0","Niche",30,198.22
+"3.5: ROSS, price exponent 0.7, K = 1, mu = 0.20, no fatigue","0","Random",30,97.93

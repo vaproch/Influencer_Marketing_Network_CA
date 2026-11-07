@@ -1,0 +1,10 @@
+# Simulation (simulation/*.py)
+numpy>=1.24
+torch>=2.0
+
+# Figure 1 (figures/scripts/fig1_seeding_strategies.py)
+matplotlib>=3.7
+
+# Network diagnostics (analysis/network_diagnostics.py); optional, used for the
+# largest-connected-component statistic only
+scipy>=1.10

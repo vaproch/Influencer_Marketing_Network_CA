@@ -1,0 +1,17 @@
+"fatigue_alpha","strategy","cascades","median_rounds_to_10pct"
+0,"Mega",240,12.5
+0,"Micro",268,13
+0,"Niche",266,13
+0,"Random",264,13
+0.02,"Mega",223,13
+0.02,"Micro",262,14
+0.02,"Niche",254,13.5
+0.02,"Random",252,14
+0.05,"Mega",182,15
+0.05,"Micro",220,16
+0.05,"Niche",208,15
+0.05,"Random",211,15
+0.1,"Mega",89,17
+0.1,"Micro",112,16
+0.1,"Niche",101,15
+0.1,"Random",119,16
